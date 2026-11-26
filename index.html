@@ -83,22 +83,23 @@
 
     input[type="file"] { display: none; }
 
+    /* ===== HEADER: ระยะห่าง顶部ที่พอดี ไม่ดันขึ้นเกินไป ===== */
     header {
       color: white;
       background: #303790;
       flex-shrink: 0;
       position: relative;
       z-index: 50;
-      padding: max(calc(env(safe-area-inset-top) + 8px), clamp(52px, 9vh, 72px)) 20px clamp(6px, 1.2vh, 10px) 20px;
+      padding: max(calc(env(safe-area-inset-top) + 8px), clamp(48px, 8vh, 64px)) 20px clamp(6px, 1.2vh, 10px) 20px;
       padding-left: clamp(10px, 3vw, 18px);
       isolation: isolate;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
 
-    /* ===== ปรับ顶部ของโหมดเพิ่มไปหน้าจอโฮมให้คำนวณตามแต่ละรุ่น ===== */
+    /* โหมดเพิ่มไปหน้าจอโฮม: ใช้ safe-area + ระยะที่พอดี */
     html.is-home-screen-app header {
-      padding-top: var(--home-top-pad, max(calc(env(safe-area-inset-top) + 12px), clamp(64px, 11vh, 88px)));
+      padding-top: var(--home-top-pad, max(calc(env(safe-area-inset-top) + 10px), clamp(56px, 9vh, 76px)));
     }
 
     .header-top { display: flex; justify-content: space-between; align-items: center; }
@@ -303,7 +304,6 @@
     .dot-indicator { width: 8px; height: 8px; border-radius: 50%; background-color: #d1d5db; transition: all 0.3s ease; }
     .dot-indicator.active { width: 24px; border-radius: 4px; background-color: #303790; }
 
-    /* ===== ปรับให้ช่องประกาศชิดกันและขยับขึ้น ===== */
     .announcement-vertical-list {
       display: flex;
       flex-direction: column;
@@ -915,7 +915,7 @@
       else window.addEventListener('load', clearOnInitialForeground, { once: true });
     })();
 
-    /* ===== ปรับสัดส่วนโหมดเพิ่มไปหน้าจอโฮมตามแต่ละรุ่นมือถือ ===== */
+    /* ===== คำนวณระยะ顶部สำหรับโหมดเพิ่มไปหน้าจอโฮม ===== */
     (function calibrateHomeScreenLayout() {
       const root = document.documentElement;
       if (!root.classList.contains('is-home-screen-app')) return;
@@ -928,9 +928,11 @@
         root.style.setProperty('--app-vh', window.innerHeight * 0.01 + 'px');
 
         if (safeTop > 0) {
-          root.style.setProperty('--home-top-pad', `calc(${safeTop}px + 12px)`);
+          /* มี safe-area: ใช้ safe-area + 10px เพื่อไม่ให้ชิดขอบเกินไป */
+          root.style.setProperty('--home-top-pad', `calc(${safeTop}px + 10px)`);
         } else {
-          root.style.setProperty('--home-top-pad', `${Math.max(64, window.innerHeight * 0.09)}px`);
+          /* ไม่มี safe-area: ใช้ 9% ของความสูงหน้าจอ แต่ไม่เกิน 76px และไม่ต่ำกว่า 56px */
+          root.style.setProperty('--home-top-pad', `${Math.min(76, Math.max(56, window.innerHeight * 0.09))}px`);
         }
       };
 
